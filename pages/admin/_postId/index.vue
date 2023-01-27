@@ -15,7 +15,7 @@ export default {
     AdminPostForm
   }, 
   asyncData(context) {
-    return this.$axios
+    return context.app.$axios
       .$get(
         "/posts/" +
           context.params.postId +
@@ -23,7 +23,7 @@ export default {
       )
       .then(res => {
         return {
-          loadedPost: { ...res.data, id: context.params.postId }
+          loadedPost: { ...res, id: context.params.postId }
         };
       })
       .catch(e => context.error());

@@ -18,8 +18,10 @@
 export default {
   asyncData(context) {
     return context.app.$axios.$get('/posts/' + context.params.id + '.json')
-          .then(res => {
-            return loadedPost = res.data
+          .then(data => {
+            return {
+              loadedPost: data
+            }
           })
           .catch(e => context.error(e))
   }

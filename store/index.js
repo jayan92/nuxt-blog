@@ -4,7 +4,8 @@ import axios from'axios'
 const createStore = () => {
   return new Vuex.Store({
     state: {
-      loadedPosts: []
+      loadedPosts: [],
+      token: null
     },
     mutations: {
       setPosts(state, posts) {
@@ -18,6 +19,9 @@ const createStore = () => {
           post => post.id === editedPost.id
         );
         state.loadedPosts[postIndex] = editedPost
+      },
+      setToken(state, token) {
+        state.token = token
       }
     },
     actions: {
@@ -39,7 +43,7 @@ const createStore = () => {
           updatedDate: new Date()
         }
         return this.$axios
-        .$post("/posts.json", createdPost)
+        .$post("/posts.json?auth=" + vuexContext.state.token, createdPost)
         .then(result => {
           vuexContext.commit('addPost', {...createdPost, id: result.data.name})
         })
@@ -48,7 +52,7 @@ const createStore = () => {
       editPost(vuexContext, editedPost) {
         return this.$axios.$put("/posts/" +
           editedPost.id +
-          ".json", editedPost)
+          ".json?auth=" + vuexContext.state.token, editedPost)
           .then(res => {
             vuexContext.commit('editPost', editedPost)
           })
@@ -56,6 +60,20 @@ const createStore = () => {
       },
       setPosts(vuexContext, posts) {
         vuexContext.commit('setPosts', posts)
+      },
+      authenticateUser(vuexContext, authData) {
+        let authUrl = 'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=' + process.env.fbAPIKey;
+      if(!authData.isLogin) {
+        authUrl = 'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=' + process.env.fbAPIKey
+      }
+      this.$axios.$post( authUrl, {
+        email: authData.email,
+        password: authData.password,
+        returnSecureToken: true
+      }).then(result => {
+        console.log(result)
+        vuexContext.commit('setToken', result.idToken)
+      }).catch(e => console.log(e));
       }
     },
     getters: {

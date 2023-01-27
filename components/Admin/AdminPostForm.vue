@@ -55,6 +55,9 @@ export default {
       this.$router.push('/admin');
     }
   },
+  onMounted() {
+    console.log(this.editedPost, 'post')
+  }
 }
 </script>
 
